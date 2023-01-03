@@ -8,9 +8,11 @@
 
 // Camera MAC - 24:6F:28:B3:2E:7C
 // Receiver MAC - A4:CF:12:60:F4:98
+// Receiver U3 - 30:AE:A4:9B:AF:B8
 camera_config_t config;
 esp_now_peer_info_t peerInfo = {};
-uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0x60, 0xF4, 0x98};
+// uint8_t broadcastAddress[] = {0xA4, 0xCF, 0x12, 0x60, 0xF4, 0x98};
+uint8_t broadcastAddress[] = {0x30, 0xAE, 0xA4, 0x9B, 0xAF, 0xB8};
 uint8_t STX = { 0x01 };
 uint8_t ETX = { 0x02 };
 uint8_t PMK[] = { 0x01, 0x14, 0x93, 0x08, 0x27, 0x93, 0x12, 0x26, 0x91, 0x10, 0x14, 0x94, 0x03, 0x25, 0x93, 0x00 };
@@ -48,6 +50,7 @@ void take_picture() {
 
     // STX
     send_data(&STX, 1);
+    delay(50);
 
     // Image
     while(count * ESP_NOW_MAX_DATA_LEN < fb->len) {
@@ -57,7 +60,7 @@ void take_picture() {
         l = ESP_NOW_MAX_DATA_LEN;
 
       send_data(fb->buf + (count * ESP_NOW_MAX_DATA_LEN), l);
-      delay(20);
+      delay(50);
 
       count += 1;
     }
@@ -108,6 +111,8 @@ void setup() {
   esp_camera_init(&config);
 
   WiFi.mode(WIFI_STA);
+  WiFi.setTxPower(WIFI_POWER_15dBm);
+
   esp_now_deinit();
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
